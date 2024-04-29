@@ -142,7 +142,9 @@ void Acp24Climate::transmit_state() {
 bool Acp24Climate::parse_state_frame_(const uint8_t frame[]) { return false; }
 
 bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
-  uint8_t state_frame[18] = {};
+  uint8_t state_frame[9] = {};
+
+  ESP_LOGV(TAG, "on_receive");
 
   if (!data.expect_item(ACP24_HEADER_MARK, ACP24_HEADER_SPACE)) {
     ESP_LOGV(TAG, "Header fail");

@@ -8,19 +8,19 @@ static const char *const TAG = "acp24.climate";
 
 const uint32_t ACP24_OFF = 0x00;
 
-const uint8_t ACP24_MODE_AUTO = 0x50;
-const uint8_t ACP24_MODE_COOL = 0x40;
-const uint8_t ACP24_MODE_HEAT = 0x20;
-const uint8_t ACP24_MODE_DRY = 0x60;
-const uint8_t ACP24_MODE_FAN_ONLY = 0x10;
+const uint8_t ACP24_MODE_AUTO = 0x0a;
+const uint8_t ACP24_MODE_COOL = 0x02;
+const uint8_t ACP24_MODE_HEAT = 0x04;
+const uint8_t ACP24_MODE_DRY = 0x06;
+const uint8_t ACP24_MODE_FAN_ONLY = 0x08;
 
-const uint8_t ACP24_FAN_AUTO = 0x0c;
+const uint8_t ACP24_FAN_AUTO = 0x30;
 const uint8_t ACP24_FAN_LOW = 0x00;
-const uint8_t ACP24_FAN_MEDIUM = 0x08;
-const uint8_t ACP24_FAN_HIGH = 0x04;
+const uint8_t ACP24_FAN_MEDIUM = 0x10;
+const uint8_t ACP24_FAN_HIGH = 0x20;
 
 // Optional presets used to enable some model features
-const uint8_t ACP24_NIGHTMODE = 0x01;
+const uint8_t ACP24_NIGHTMODE = 0x80;
 
 // Pulse parameters in usec
 const uint16_t ACP24_BIT_MARK = 380;
@@ -118,7 +118,7 @@ void Acp24Climate::transmit_state() {
     data->space(ACP24_HEADER_SPACE);
     // Data
     for (uint8_t i : remote_state) {
-      for (uint8_t j = 0; j < 8; j++) {
+      for (uint8_t j = 7; j > 0; j--) {
         data->mark(ACP24_BIT_MARK);
         bool bit = i & (1 << j);
         data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);
@@ -147,8 +147,8 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
 
   for (uint8_t pos = 0; pos < 9; pos++) {
     uint8_t byte = 0;
-    for (int8_t bit = 0; bit < 8; bit++) {
-      if (pos == 8 && bit == 6) break;
+    for (int8_t bit = 7; bit > 0; bit--) {
+      if (pos == 8 && bit == 1) break;
       if (data.expect_item(ACP24_BIT_MARK, ACP24_ONE_SPACE)) {
         byte |= 1 << bit;
       } else if (!data.expect_item(ACP24_BIT_MARK, ACP24_ZERO_SPACE)) {
@@ -161,7 +161,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   }
 
   // On/Off and Mode
-    switch (state_frame[0] & 0x70) {
+    switch (state_frame[0] & 0x0e) {
       case ACP24_MODE_DRY:
         this->mode = climate::CLIMATE_MODE_DRY;
         break;
@@ -187,7 +187,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   this->target_temperature = state_frame[7] + 15;
 
   // Fan
-  switch (state_frame[0] & 0x0c) {
+  switch (state_frame[0] & 0x30) {
       case ACP24_FAN_AUTO:
         this->fan_mode = climate::CLIMATE_FAN_AUTO;
         break;

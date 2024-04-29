@@ -16,6 +16,7 @@ class Acp24Climate : public climate_ir::ClimateIR {
   Acp24Climate()
       : climate_ir::ClimateIR(ACP24_TEMP_MIN, ACP24_TEMP_MAX, 1.0f, true, true,
                               {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH},
+                              {},
                               {climate::CLIMATE_PRESET_NONE, climate::CLIMATE_PRESET_SLEEP}) {}
 
  protected:

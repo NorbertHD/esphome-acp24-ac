@@ -201,6 +201,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   this->preset = (state_frame[0] & ACP24_NIGHTMODE) ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NONE;
 
   ESP_LOGD(TAG, "Receiving: %s", format_hex_pretty(state_frame, 9).c_str());
+  ESP_LOGD(TAG, "Remote Time: %d%d:%d%d", (state_frame[1] >> 4) & 0x0f, state_frame[1] & 0x0f, (state_frame[2] >> 3) & 0x0f, ((state_frame[2] << 1) & 0x0e) + ((state_frame[3] >> 7) & 0x01));
 
   this->publish_state();
   return true;

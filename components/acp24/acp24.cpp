@@ -65,9 +65,8 @@ void Acp24Climate::transmit_state() {
   }
 
   // Temperature
-    remote_state[7] = ((uint8_t) roundf(
-        clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15)) << 2;
-  }
+  remote_state[7] = ((uint8_t) roundf(
+      clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15)) << 2;
 
   // Fan Speed
   // Map of Climate fan mode to this device expected value

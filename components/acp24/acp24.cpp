@@ -76,9 +76,6 @@ void Acp24Climate::transmit_state() {
         clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15);
   }
 
-
-  ESP_LOGD(TAG, "default_horizontal_direction_: %02X", this->default_horizontal_direction_);
-
   // Fan Speed
   // Map of Climate fan mode to this device expected value
   // For 3Level: Low = 1, Medium = 2, High = 3
@@ -88,18 +85,10 @@ void Acp24Climate::transmit_state() {
       remote_state[8] = 1;
       break;
     case climate::CLIMATE_FAN_MEDIUM:
-      if (this->fan_mode_ == ACP24_FAN_3L) {
-        remote_state[8] = 2;
-      } else {
-        remote_state[8] = 3;
-      }
+      remote_state[8] = 3;
       break;
     case climate::CLIMATE_FAN_HIGH:
-      if (this->fan_mode_ == ACP24_FAN_3L) {
-        remote_state[8] = 3;
-      } else {
-        remote_state[8] = 4;
-      }
+      remote_state[8] = 4;
       break;
     default:
       remote_state[8] = ACP24_FAN_AUTO;
@@ -107,8 +96,6 @@ void Acp24Climate::transmit_state() {
   }
 
   ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[9]);
-
-  ESP_LOGD(TAG, "default_vertical_direction_: %02X", this->default_vertical_direction_);
 
   // Special modes
   switch (this->preset.value()) {

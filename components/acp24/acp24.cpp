@@ -8,17 +8,17 @@ static const char *const TAG = "acp24.climate";
 
 const uint32_t ACP24_OFF = 0x00;
 
-const uint8_t ACP24_MODE_AUTO = 0x20;
-const uint8_t ACP24_MODE_COOL = 0x18;
-const uint8_t ACP24_MODE_DRY = 0x10;
-const uint8_t ACP24_MODE_FAN_ONLY = 0x38;
+const uint8_t ACP24_MODE_AUTO = 0x50;
+const uint8_t ACP24_MODE_COOL = 0x40;
+const uint8_t ACP24_MODE_DRY = 0x60;
+const uint8_t ACP24_MODE_FAN_ONLY = 0x10;
 
 
 const uint8_t ACP24_FAN_AUTO = 0x00;
 
 
 // Optional presets used to enable some model features
-const uint8_t ACP24_NIGHTMODE = 0xC1;
+const uint8_t ACP24_NIGHTMODE = 0x01;
 
 // Pulse parameters in usec
 const uint16_t ACP24_BIT_MARK = 400;
@@ -167,10 +167,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   }
 
   // On/Off and Mode
-  if (state_frame[5] == ACP24_OFF) {
-    this->mode = climate::CLIMATE_MODE_OFF;
-  } else {
-    switch (state_frame[6]) {
+    switch (state_frame[0] & 0x70) {
       case ACP24_MODE_DRY:
         this->mode = climate::CLIMATE_MODE_DRY;
         break;
@@ -180,14 +177,17 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       case ACP24_MODE_FAN_ONLY:
         this->mode = climate::CLIMATE_MODE_FAN_ONLY;
         break;
-    }
-  }
+      case ACP24_OFF:
+        this->mode = climate::CLIMATE_MODE_OFF;
+        break;
+   }
+ 
 
   // Temp
   this->target_temperature = state_frame[7] + 15;
 
   // Fan
-  uint8_t fan = state_frame[8] & 0x07;  //(Bit 0,1,2 = Speed)
+  uint8_t fan = state_frame[0] & 0x0c;  
   // Map of Climate fan mode to this device expected value
   // For 3Level: Low = 1, Medium = 2, High = 3
   climate::ClimateFanMode modes_mapping[8] = {
@@ -198,7 +198,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       climate::CLIMATE_FAN_AUTO};
   this->fan_mode = modes_mapping[fan];
 
-  switch (state_frame[8]) {
+  switch (state_frame[0] & 0x01) {
     case ACP24_NIGHTMODE:
       this->preset = climate::CLIMATE_PRESET_SLEEP;
       break;

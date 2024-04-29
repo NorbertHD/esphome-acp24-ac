@@ -10,22 +10,24 @@ const uint32_t ACP24_OFF = 0x00;
 
 const uint8_t ACP24_MODE_AUTO = 0x50;
 const uint8_t ACP24_MODE_COOL = 0x40;
+const uint8_t ACP24_MODE_HEAT = 0x20;
 const uint8_t ACP24_MODE_DRY = 0x60;
 const uint8_t ACP24_MODE_FAN_ONLY = 0x10;
 
-
-const uint8_t ACP24_FAN_AUTO = 0x00;
-
+const uint8_t ACP24_FAN_AUTO = 0x0c;
+const uint8_t ACP24_FAN_LOW = 0x00;
+const uint8_t ACP24_FAN_MEDIUM = 0x08;
+const uint8_t ACP24_FAN_HIGH = 0x04;
 
 // Optional presets used to enable some model features
 const uint8_t ACP24_NIGHTMODE = 0x01;
 
 // Pulse parameters in usec
-const uint16_t ACP24_BIT_MARK = 400;
-const uint16_t ACP24_ONE_SPACE = 1350;
-const uint16_t ACP24_ZERO_SPACE = 975;
-const uint16_t ACP24_HEADER_MARK = 400;
-const uint16_t ACP24_HEADER_SPACE = 975;
+const uint16_t ACP24_BIT_MARK = 380;
+const uint16_t ACP24_ONE_SPACE = 1330;
+const uint16_t ACP24_ZERO_SPACE = 960;
+const uint16_t ACP24_HEADER_MARK = 380;
+const uint16_t ACP24_HEADER_SPACE = 960;
 const uint16_t ACP24_MIN_GAP = 17500;
 
 climate::ClimateTraits Acp24Climate::traits() {
@@ -54,17 +56,17 @@ void Acp24Climate::transmit_state() {
 
   switch (this->mode) {
     case climate::CLIMATE_MODE_DRY:
-      remote_state[6] = ACP24_MODE_DRY;
+      remote_state[0] = ACP24_MODE_DRY;
       break;
     case climate::CLIMATE_MODE_COOL:
-      remote_state[6] = ACP24_MODE_COOL;
+      remote_state[0] = ACP24_MODE_COOL;
       break;
     case climate::CLIMATE_MODE_FAN_ONLY:
-      remote_state[6] = ACP24_MODE_FAN_ONLY;
+      remote_state[0] = ACP24_MODE_FAN_ONLY;
       break;
     case climate::CLIMATE_MODE_OFF:
     default:
-      remote_state[5] = ACP24_OFF;
+      remote_state[0] = ACP24_OFF;
       break;
   }
 
@@ -82,16 +84,16 @@ void Acp24Climate::transmit_state() {
 
   switch (this->fan_mode.value()) {
     case climate::CLIMATE_FAN_LOW:
-      remote_state[8] = 1;
+      remote_state[0] |= ACP24_FAN_LOW;
       break;
     case climate::CLIMATE_FAN_MEDIUM:
-      remote_state[8] = 3;
+      remote_state[0] |= ACP24_FAN_MEDIUM;
       break;
     case climate::CLIMATE_FAN_HIGH:
-      remote_state[8] = 4;
+      remote_state[0] |= ACP24_FAN_HIGH;
       break;
     default:
-      remote_state[8] = ACP24_FAN_AUTO;
+      remote_state[0] |= ACP24_FAN_AUTO;
       break;
   }
 
@@ -174,10 +176,14 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       case ACP24_MODE_COOL:
         this->mode = climate::CLIMATE_MODE_COOL;
         break;
+      case ACP24_MODE_HEAT:
+        this->mode = climate::CLIMATE_MODE_HEAT;
+        break;
       case ACP24_MODE_FAN_ONLY:
         this->mode = climate::CLIMATE_MODE_FAN_ONLY;
         break;
       case ACP24_OFF:
+      default:
         this->mode = climate::CLIMATE_MODE_OFF;
         break;
    }
@@ -187,17 +193,21 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   this->target_temperature = state_frame[7] + 15;
 
   // Fan
-  uint8_t fan = state_frame[0] & 0x0c;  
-  // Map of Climate fan mode to this device expected value
-  // For 3Level: Low = 1, Medium = 2, High = 3
-  climate::ClimateFanMode modes_mapping[8] = {
-      climate::CLIMATE_FAN_AUTO,
-      climate::CLIMATE_FAN_LOW,
-      climate::CLIMATE_FAN_HIGH,
-      climate::CLIMATE_FAN_AUTO,
-      climate::CLIMATE_FAN_AUTO};
-  this->fan_mode = modes_mapping[fan];
-
+  switch (state_frame[0] & 0x0c) {
+      case ACP24_FAN_AUTO:
+        this->fan_mode = climate::CLIMATE_FAN_AUTO;
+        break;
+      case ACP24_FAN_LOW:
+        this->fan_mode = climate::CLIMATE_FAN_LOW;
+        break;
+      case ACP24_FAN_MEDIUM:
+        this->fan_mode = climate::CLIMATE_FAN_MEDIUM;
+        break;
+      case ACP24_FAN_HIGH:
+        this->fan_mode = climate::CLIMATE_FAN_HIGH;
+        break;
+  }    
+    
   switch (state_frame[0] & 0x01) {
     case ACP24_NIGHTMODE:
       this->preset = climate::CLIMATE_PRESET_SLEEP;

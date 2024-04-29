@@ -65,7 +65,7 @@ void Acp24Climate::transmit_state() {
   }
 
   // Temperature
-  remote_state[7] = ((uint8_t) roundf(
+  remote_state[8] = ((uint8_t) roundf(
       clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15)) << 2;
 
   // Fan Speed
@@ -87,12 +87,12 @@ void Acp24Climate::transmit_state() {
       break;
   }
 
-  ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[8]);
+  ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[0]);
 
   // Special modes
   switch (this->preset.value()) {
     case climate::CLIMATE_PRESET_SLEEP:
-      remote_state[8] = ACP24_NIGHTMODE;
+      remote_state[0] = ACP24_NIGHTMODE;
       break;
     case climate::CLIMATE_PRESET_NONE:
     default:

@@ -95,7 +95,7 @@ void Acp24Climate::transmit_state() {
       break;
   }
 
-  ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[9]);
+  ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[8]);
 
   // Special modes
   switch (this->preset.value()) {

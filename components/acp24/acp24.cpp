@@ -107,23 +107,15 @@ void Acp24Climate::transmit_state() {
   auto *data = transmit.get_data();
 
   data->set_carrier_frequency(38000);
-  // repeat twice
-  for (uint16_t r = 0; r < 1; r++) {
-    // Header
-    data->mark(ACP24_HEADER_MARK);
-    data->space(ACP24_HEADER_SPACE);
-    // Data
-    for (uint8_t i : remote_state) {
-      for (uint8_t j = 0; j < 8; j++) {
-        data->mark(ACP24_BIT_MARK);
-        bool bit = i & (1 << j);
-        data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);
-      }
-    }
-    // Footer
-    if (r == 0) {
+  // Header
+  data->mark(ACP24_HEADER_MARK);
+  data->space(ACP24_HEADER_SPACE);
+  // Data
+  for (uint8_t i : remote_state) {
+    for (uint8_t j = 0; j < 8; j++) {
       data->mark(ACP24_BIT_MARK);
-      data->space(ACP24_MIN_GAP);  // Pause before repeating
+      bool bit = i & (1 << j);
+      data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);
     }
   }
   data->mark(ACP24_BIT_MARK);

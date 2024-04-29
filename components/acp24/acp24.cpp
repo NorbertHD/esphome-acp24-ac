@@ -114,7 +114,6 @@ void Acp24Climate::transmit_state() {
     data->space(ACP24_HEADER_SPACE);
     // Data
     for (uint8_t i : remote_state) {
-        if (pos == 8 && bit == 1) break;
         data->mark(ACP24_BIT_MARK);
         bool bit = i & (1 << j);
         data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);

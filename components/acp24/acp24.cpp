@@ -148,7 +148,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   for (uint8_t pos = 0; pos < 9; pos++) {
     uint8_t byte = 0;
     for (int8_t bit = 7; bit >= 0; bit--) {
-      if (pos == 8 && bit == 0) break;
+      if (pos == 8 && bit == 1) break;
       if (data.expect_item(ACP24_BIT_MARK, ACP24_ONE_SPACE)) {
         byte |= 1 << bit;
       } else if (!data.expect_item(ACP24_BIT_MARK, ACP24_ZERO_SPACE)) {

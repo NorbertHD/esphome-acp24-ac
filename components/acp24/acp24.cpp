@@ -65,11 +65,8 @@ void Acp24Climate::transmit_state() {
   }
 
   // Temperature
-  if (this->mode == climate::CLIMATE_MODE_DRY) {
-    remote_state[7] = 24 - ACP24_TEMP_MIN;  // Remote sends always 24°C if "Dry" mode is selected
-  } else {
-    remote_state[7] = (uint8_t) roundf(
-        clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15);
+    remote_state[7] = ((uint8_t) roundf(
+        clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15)) << 2;
   }
 
   // Fan Speed
@@ -118,7 +115,7 @@ void Acp24Climate::transmit_state() {
     data->space(ACP24_HEADER_SPACE);
     // Data
     for (uint8_t i : remote_state) {
-      for (uint8_t j = 7; j >= 0; j--) {
+        if (pos == 8 && bit == 1) break;
         data->mark(ACP24_BIT_MARK);
         bool bit = i & (1 << j);
         data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);
@@ -184,7 +181,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
    }
  
   // Temp
-  this->target_temperature = state_frame[8] + 15;
+  this->target_temperature = ((state_frame[8] & 0x3c) >> 2) + 15;
 
   // Fan
   switch (state_frame[0] & 0x30) {

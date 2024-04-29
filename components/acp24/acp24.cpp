@@ -144,10 +144,10 @@ bool Acp24Climate::parse_state_frame_(const uint8_t frame[]) { return false; }
 bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   uint8_t state_frame[9] = {};
 
-  ESP_LOGV(TAG, "on_receive");
+  ESP_LOGD(TAG, "on_receive");
 
   if (!data.expect_item(ACP24_HEADER_MARK, ACP24_HEADER_SPACE)) {
-    ESP_LOGV(TAG, "Header fail");
+    ESP_LOGD(TAG, "Header fail");
     return false;
   }
 
@@ -158,7 +158,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       if (data.expect_item(ACP24_BIT_MARK, ACP24_ONE_SPACE)) {
         byte |= 1 << bit;
       } else if (!data.expect_item(ACP24_BIT_MARK, ACP24_ZERO_SPACE)) {
-        ESP_LOGV(TAG, "Byte %d bit %d fail", pos, bit);
+        ESP_LOGD(TAG, "Byte %d bit %d fail", pos, bit);
         return false;
       }
     }
@@ -204,7 +204,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       break;
   }
 
-  ESP_LOGV(TAG, "Receiving: %s", format_hex_pretty(state_frame, 9).c_str());
+  ESP_LOGD(TAG, "Receiving: %s", format_hex_pretty(state_frame, 9).c_str());
 
   this->publish_state();
   return true;

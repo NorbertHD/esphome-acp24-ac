@@ -92,7 +92,7 @@ void Acp24Climate::transmit_state() {
   // Special modes
   switch (this->preset.value()) {
     case climate::CLIMATE_PRESET_SLEEP:
-      remote_state[0] = ACP24_NIGHTMODE;
+      remote_state[0] |= ACP24_NIGHTMODE;
       break;
     case climate::CLIMATE_PRESET_NONE:
     default:

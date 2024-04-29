@@ -49,6 +49,9 @@ void Acp24Climate::transmit_state() {
   uint32_t remote_state[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   switch (this->mode) {
+    case climate::CLIMATE_MODE_AUTO:
+      remote_state[0] = ACP24_MODE_AUTO;
+      break;
     case climate::CLIMATE_MODE_DRY:
       remote_state[0] = ACP24_MODE_DRY;
       break;

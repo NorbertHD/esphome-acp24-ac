@@ -46,12 +46,6 @@ climate::ClimateTraits Acp24Climate::traits() {
 }
 
 void Acp24Climate::transmit_state() {
-  // Byte 5: On=0x20, Off: 0x00
-  // Byte 6: MODE (See MODEs above (Heat/Dry/Cool/Auto/FanOnly)
-  // Byte 7: TEMP bits 0,1,2,3, added to ACP24_TEMP_MIN
-  //          Example: 0x00 = 0°C+ACP24_TEMP_MIN = 16°C; 0x07 = 7°C+ACP24_TEMP_MIN = 23°C
-  // Byte 9: FAN
-  //          FAN (Speed) bits 0,1,2
   uint32_t remote_state[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   switch (this->mode) {
@@ -146,8 +140,6 @@ bool Acp24Climate::parse_state_frame_(const uint8_t frame[]) { return false; }
 bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   uint8_t state_frame[9] = {};
 
-  ESP_LOGD(TAG, "on_receive");
-
   if (!data.expect_item(ACP24_HEADER_MARK, ACP24_HEADER_SPACE)) {
     ESP_LOGD(TAG, "Header fail");
     return false;
@@ -182,13 +174,15 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
       case ACP24_MODE_FAN_ONLY:
         this->mode = climate::CLIMATE_MODE_FAN_ONLY;
         break;
+      case ACP24_MODE_AUTO:
+        this->mode = climate::CLIMATE_MODE_AUTO;
+        break;
       case ACP24_OFF:
       default:
         this->mode = climate::CLIMATE_MODE_OFF;
         break;
    }
  
-
   // Temp
   this->target_temperature = state_frame[7] + 15;
 
@@ -208,11 +202,7 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
         break;
   }    
     
-  switch (state_frame[0] & 0x01) {
-    case ACP24_NIGHTMODE:
-      this->preset = climate::CLIMATE_PRESET_SLEEP;
-      break;
-  }
+  this->preset = (state_frame[0] & ACP24_NIGHTMODE) ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NORMAL;
 
   ESP_LOGD(TAG, "Receiving: %s", format_hex_pretty(state_frame, 9).c_str());
 

@@ -202,6 +202,8 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   ESP_LOGD(TAG, "Timer 1 Start Time: %d%d:%s", (state_frame[3] >> 2) & 0x03, ((state_frame[3] << 2) & 0x0c) + ((state_frame[4] >> 6) & 0x03), (state_frame[3] & 0x10) ? "30": "00");
   ESP_LOGD(TAG, "Timer 1 End Time: %d%d:%s", (state_frame[4] >> 1) & 0x03, ((state_frame[4] << 3) & 0x08) + ((state_frame[5] >> 5) & 0x07), (state_frame[4] & 0x08) ? "30": "00");
   ESP_LOGD(TAG, "Timer 2: %s", (state_frame[5] & 0x08) ? "On": "Off");
+  ESP_LOGD(TAG, "Timer 2 Start Time: %d%d:%s", state_frame[5] & 0x03, (state_frame[6] >> 4) & 0x0f, (state_frame[5] & 0x04) ? "30": "00");
+  ESP_LOGD(TAG, "Timer 2 End Time: %d%d:%s", ((state_frame[6] << 1) & 0x02) + ((state_frame[7] >> 7) & 0x01), (state_frame[7] >> 3) & 0x0f, (state_frame[6] & 0x02) ? "30": "00");
 
   this->publish_state();
   return true;

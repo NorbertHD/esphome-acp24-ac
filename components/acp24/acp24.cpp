@@ -72,22 +72,23 @@ void Acp24Climate::transmit_state() {
       clamp<float>(this->target_temperature, ACP24_TEMP_MIN, ACP24_TEMP_MAX) - 15)) << 2;
 
   // Fan Speed
-  // Map of Climate fan mode to this device expected value
-  // For 3Level: Low = 1, Medium = 2, High = 3
-
-  switch (this->fan_mode.value()) {
-    case climate::CLIMATE_FAN_LOW:
-      remote_state[0] |= ACP24_FAN_LOW;
-      break;
-    case climate::CLIMATE_FAN_MEDIUM:
-      remote_state[0] |= ACP24_FAN_MEDIUM;
-      break;
-    case climate::CLIMATE_FAN_HIGH:
-      remote_state[0] |= ACP24_FAN_HIGH;
-      break;
-    default:
-      remote_state[0] |= ACP24_FAN_AUTO;
-      break;
+  if  (this->mode == climate::CLIMATE_MODE_AUTO) {
+    remote_state[0] |= ACP24_FAN_AUTO;
+  } else {
+    switch (this->fan_mode.value()) {
+      case climate::CLIMATE_FAN_LOW:
+        remote_state[0] |= ACP24_FAN_LOW;
+        break;
+      case climate::CLIMATE_FAN_MEDIUM:
+        remote_state[0] |= ACP24_FAN_MEDIUM;
+        break;
+      case climate::CLIMATE_FAN_HIGH:
+        remote_state[0] |= ACP24_FAN_HIGH;
+        break;
+      default:
+        remote_state[0] |= ACP24_FAN_AUTO;
+        break;
+    }
   }
 
   ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[0]);
@@ -198,6 +199,8 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   ESP_LOGD(TAG, "Receiving: %s", format_hex_pretty(state_frame, 9).c_str());
   ESP_LOGD(TAG, "Remote Time: %d%d:%d%d", (state_frame[1] >> 4) & 0x0f, state_frame[1] & 0x0f, (state_frame[2] >> 3) & 0x0f, ((state_frame[2] << 1) & 0x0e) + ((state_frame[3] >> 7) & 0x01));
   ESP_LOGD(TAG, "Timer 1: %s", (state_frame[3] & 0x20) ? "On": "Off");
+  ESP_LOGD(TAG, "Timer 1 Start Time: %d%d:%s", (state_frame[3] >> 2) & 0x03, ((state_frame[3] << 2) & 0x0c) + ((state_frame[4] >> 6) & 0x03), (state_frame[3] & 0x10) ? "30": "00");
+  ESP_LOGD(TAG, "Timer 1 End Time: %d%d:%s", (state_frame[4] >> 1) & 0x03, ((state_frame[4] << 3) & 0x08) + ((state_frame[5] >> 5) & 0x07), (state_frame[4] & 0x08) ? "30": "00");
   ESP_LOGD(TAG, "Timer 2: %s", (state_frame[5] & 0x08) ? "On": "Off");
 
   this->publish_state();

@@ -6,7 +6,7 @@ namespace acp24 {
 
 static const char *const TAG = "acp24.climate";
 
-const uint32_t ACP24_OFF = 0x00;
+const uint8_t ACP24_OFF = 0x00;
 const uint8_t ACP24_MODE_COOL = 0x02;
 const uint8_t ACP24_MODE_HEAT = 0x04;
 const uint8_t ACP24_MODE_DRY = 0x06;

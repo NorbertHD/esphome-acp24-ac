@@ -7,17 +7,16 @@ namespace acp24 {
 static const char *const TAG = "acp24.climate";
 
 const uint32_t ACP24_OFF = 0x00;
-
-const uint8_t ACP24_MODE_AUTO = 0x0a;
 const uint8_t ACP24_MODE_COOL = 0x02;
 const uint8_t ACP24_MODE_HEAT = 0x04;
 const uint8_t ACP24_MODE_DRY = 0x06;
 const uint8_t ACP24_MODE_FAN_ONLY = 0x08;
+const uint8_t ACP24_MODE_AUTO = 0x0a;
 
-const uint8_t ACP24_FAN_AUTO = 0x30;
 const uint8_t ACP24_FAN_LOW = 0x00;
 const uint8_t ACP24_FAN_MEDIUM = 0x10;
 const uint8_t ACP24_FAN_HIGH = 0x20;
+const uint8_t ACP24_FAN_AUTO = 0x30;
 
 // Optional presets used to enable some model features
 const uint8_t ACP24_NIGHTMODE = 0x80;

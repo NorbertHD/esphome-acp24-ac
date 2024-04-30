@@ -30,9 +30,7 @@ const uint16_t ACP24_HEADER_SPACE = 960;
 const uint16_t ACP24_MIN_GAP = 17500;
 
 climate::ClimateTraits Acp24Climate::traits() {
-  // auto traits = climate::ClimateTraits();
   auto traits = climate_ir::ClimateIR::traits();
-
   traits.set_supports_action(false);
   traits.set_visual_min_temperature(ACP24_TEMP_MIN);
   traits.set_visual_max_temperature(ACP24_TEMP_MAX);

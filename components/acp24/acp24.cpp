@@ -91,11 +91,10 @@ void Acp24Climate::transmit_state() {
   }
 
   ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[0]);
-  char str[30];
+  
   ESPTime etime = time_->now();
   uint8_t hour = etime.hour;
   uint8_t minute = etime.minute;
-
   remote_state[1] |= ((hour / 10) << 4) + (hour % 10);
   remote_state[2] |= ((minute / 10) << 3) + ((minute % 10) >> 1);
   remote_state[3] |= ((minute % 10) << 7) & 0x80;

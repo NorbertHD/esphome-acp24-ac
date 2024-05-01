@@ -92,7 +92,7 @@ void Acp24Climate::transmit_state() {
 
   ESP_LOGD(TAG, "fan: %02x state: %02x", this->fan_mode.value(), remote_state[0]);
   char str[30];
-  time_->strftime(str, sizeof(str), "%Y-%m-%d %H:%M");
+  time_->now().strftime(str, sizeof(str), "%Y-%m-%d %H:%M");
   ESP_LOGD(TAG, "curTime: %s", str);
 
   // Special modes

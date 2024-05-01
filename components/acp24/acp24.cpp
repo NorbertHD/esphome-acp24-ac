@@ -98,7 +98,7 @@ void Acp24Climate::transmit_state() {
 
   remote_state[1] |= ((hour / 10) << 4) + (hour % 10);
   remote_state[2] |= ((minute / 10) << 3) + ((minute % 10) >> 1);
-  remote_state[3] |= ((minute % 10) << 7) % 0x80;
+  remote_state[3] |= ((minute % 10) << 7) & 0x80;
 
   // Special modes
   switch (this->preset.value()) {

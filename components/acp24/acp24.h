@@ -1,6 +1,9 @@
 #pragma once
 
 #include "esphome/components/climate_ir/climate_ir.h"
+#include "esphome/core/time.h"
+
+#include "esphome/components/time/real_time_clock.h"
 
 #include <cinttypes>
 
@@ -18,6 +21,8 @@ class Acp24Climate : public climate_ir::ClimateIR {
                               {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH},
                               {},
                               {climate::CLIMATE_PRESET_NONE, climate::CLIMATE_PRESET_SLEEP}) {}
+ void set_time(time::RealTimeClock *time) { time_ = time; }
+ time::RealTimeClock *get_time() const { return time_; }
 
  protected:
   // Transmit via IR the state of this climate controller.
@@ -25,8 +30,9 @@ class Acp24Climate : public climate_ir::ClimateIR {
   // Handle received IR Buffer
   bool on_receive(remote_base::RemoteReceiveData data) override;
   bool parse_state_frame_(const uint8_t frame[]);
-
   climate::ClimateTraits traits() override;
+
+  time::RealTimeClock *time_;
 };
 
 }  // namespace acp24

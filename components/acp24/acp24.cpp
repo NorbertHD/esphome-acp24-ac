@@ -22,11 +22,11 @@ const uint8_t ACP24_FAN_AUTO = 0x30;
 const uint8_t ACP24_NIGHTMODE = 0x80;
 
 // Pulse parameters in usec
-const uint16_t ACP24_BIT_MARK = 380;
-const uint16_t ACP24_ONE_SPACE = 1330;
-const uint16_t ACP24_ZERO_SPACE = 960;
-const uint16_t ACP24_HEADER_MARK = 380;
-const uint16_t ACP24_HEADER_SPACE = 960;
+const uint16_t ACP24_BIT_MARK = 360;
+const uint16_t ACP24_ONE_SPACE = 1360;
+const uint16_t ACP24_ZERO_SPACE = 980;
+const uint16_t ACP24_HEADER_MARK = 360;
+const uint16_t ACP24_HEADER_SPACE = 980;
 const uint16_t ACP24_MIN_GAP = 17500;
 
 climate::ClimateTraits Acp24Climate::traits() {

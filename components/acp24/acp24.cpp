@@ -121,15 +121,18 @@ void Acp24Climate::transmit_state() {
   data->mark(ACP24_HEADER_MARK);
   data->space(ACP24_HEADER_SPACE);
   // Data
+  uint8_t i1 = 0;
   for (uint8_t i : remote_state) {
     for (int8_t j = 7; j >= 0; j--) {
+      if (i1 == 70) break;
+      i1++;
       data->mark(ACP24_BIT_MARK);
       bool bit = i & (1 << j);
       data->space(bit ? ACP24_ONE_SPACE : ACP24_ZERO_SPACE);
     }
   }
+  
   data->mark(ACP24_BIT_MARK);
-
   transmit.perform();
 }
 
@@ -143,10 +146,12 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
     return false;
   }
 
+  uint8_t i1 = 0;
   for (uint8_t pos = 0; pos < 9; pos++) {
     uint8_t byte = 0;
     for (int8_t bit = 7; bit >= 0; bit--) {
-      if (pos == 8 && bit == 1) break;
+      if (i1 == 70) break;
+      i1++;
       if (data.expect_item(ACP24_BIT_MARK, ACP24_ONE_SPACE)) {
         byte |= 1 << bit;
       } else if (!data.expect_item(ACP24_BIT_MARK, ACP24_ZERO_SPACE)) {

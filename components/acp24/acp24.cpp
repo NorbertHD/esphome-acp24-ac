@@ -28,6 +28,12 @@ const uint16_t ACP24_ZERO_SPACE = 984;
 const uint16_t ACP24_HEADER_MARK = 357;
 const uint16_t ACP24_HEADER_SPACE = 984;
 const uint16_t ACP24_MIN_GAP = 17500;
+const uint16_t ACP24_BIT_MARK_RCV = 460;
+const uint16_t ACP24_ONE_SPACE_RCV = 1250;
+const uint16_t ACP24_ZERO_SPACE_RCV = 880;
+const uint16_t ACP24_HEADER_MARK_RCV = 460;
+const uint16_t ACP24_HEADER_SPACE_RCV = 880;
+
 
 climate::ClimateTraits Acp24Climate::traits() {
   auto traits = climate_ir::ClimateIR::traits();
@@ -141,7 +147,7 @@ bool Acp24Climate::parse_state_frame_(const uint8_t frame[]) { return false; }
 bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   uint8_t state_frame[9] = {};
 
-  if (!data.expect_item(ACP24_HEADER_MARK, ACP24_HEADER_SPACE)) {
+  if (!data.expect_item(ACP24_HEADER_MARK_RCV, ACP24_HEADER_SPACE_RCV)) {
     ESP_LOGD(TAG, "Header fail");
     return false;
   }
@@ -152,9 +158,9 @@ bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
     for (int8_t bit = 7; bit >= 0; bit--) {
       if (i1 == 70) break;
       i1++;
-      if (data.expect_item(ACP24_BIT_MARK, ACP24_ONE_SPACE)) {
+      if (data.expect_item(ACP24_BIT_MARK_RCV, ACP24_ONE_SPACE_RCV)) {
         byte |= 1 << bit;
-      } else if (!data.expect_item(ACP24_BIT_MARK, ACP24_ZERO_SPACE)) {
+      } else if (!data.expect_item(ACP24_BIT_MARK_RCV, ACP24_ZERO_SPACE_RCV)) {
         ESP_LOGD(TAG, "Byte %d bit %d fail", pos, bit);
         return false;
       }

@@ -51,6 +51,7 @@ climate::ClimateTraits Acp24Climate::traits() {
 }
 
 void Acp24Climate::transmit_state() {
+  this->last_transmit_time_ = millis();  // setting the time of the last transmission.
   uint32_t remote_state[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   switch (this->mode) {
@@ -146,6 +147,12 @@ bool Acp24Climate::parse_state_frame_(const uint8_t frame[]) { return false; }
 
 bool Acp24Climate::on_receive(remote_base::RemoteReceiveData data) {
   uint8_t state_frame[9] = {};
+
+  // Check if the esp isn't currently transmitting.
+  if (millis() - this->last_transmit_time_ < 500) {
+    ESP_LOGV(TAG, "Blocked receive because of current transmission");
+    return false;
+  }
 
   if (!data.expect_item(ACP24_HEADER_MARK_RCV, ACP24_HEADER_SPACE_RCV)) {
     ESP_LOGD(TAG, "Header fail");

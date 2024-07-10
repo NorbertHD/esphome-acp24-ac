@@ -29,6 +29,9 @@ class Acp24Climate : public climate_ir::ClimateIR {
   void transmit_state() override;
   // Handle received IR Buffer
   bool on_receive(remote_base::RemoteReceiveData data) override;
+  /// Set the time of the last transmission.
+  int32_t last_transmit_time_{};
+
   bool parse_state_frame_(const uint8_t frame[]);
   climate::ClimateTraits traits() override;
 

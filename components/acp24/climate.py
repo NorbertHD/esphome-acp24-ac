@@ -9,7 +9,7 @@ AUTO_LOAD = ["climate_ir"]
 acp24_ns = cg.esphome_ns.namespace("acp24")
 Acp24Climate = acp24_ns.class_("Acp24Climate", climate_ir.ClimateIR)
 
-CONFIG_SCHEMA = climate_ir.climare_ir_with_receiver_schema(Acp24Climate).extend(
+CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(Acp24Climate).extend(
     {
         cv.GenerateID(CONF_TIME_ID): cv.use_id(time.RealTimeClock),
     }
